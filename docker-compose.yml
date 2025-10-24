@@ -1,0 +1,49 @@
+version: "3.9"
+
+services:
+  # ---------------------------
+  # MongoDB — локальная БД
+  # ---------------------------
+  mongo:
+    image: mongo:4.4
+    restart: unless-stopped
+    ports:
+      - "27017:27017"              # для удобства локального доступа (mongosh/GUI)
+    volumes:
+      - mongo_data:/data/db
+
+  # ---------------------------
+  # API — FastAPI на Uvicorn
+  # ---------------------------
+  api:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    environment:
+      # комментарий: внутри docker-сети mongo доступен по имени сервиса "mongo"
+      - MONGODB_URI=mongodb://mongo:27017/shopdb
+    depends_on:
+      - mongo
+    ports:
+      - "8000:8000"                # Swagger: http://localhost:8000/docs
+    restart: unless-stopped
+
+  # ---------------------------
+  # Frontend — Nginx со статикой и proxy /api → api:8000
+  # ---------------------------
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+      args:
+        # комментарий: на сборке Vite не понадобится BASE, т.к. будем ходить на относительный /api
+        # оставлено для гибкости; можно убрать
+        VITE_API_BASE: "/api"
+    depends_on:
+      - api
+    ports:
+      - "8080:80"                  # Готовый сайт: http://localhost:8080
+    restart: unless-stopped
+
+volumes:
+  mongo_data:
