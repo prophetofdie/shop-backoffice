@@ -11,7 +11,7 @@
 Технические заметки:
 - MongoDB клиент: motor (async)
 - Обработка ObjectId -> str для ответов API
-- Автодокументация: /docs (Swagger UI), /redoc
+- Автодокументация: /docs (Swagger UI)
 """
 
 import os
@@ -251,7 +251,7 @@ async def create_order(body: OrderIn):
         if prod["stock"] < it.quantity:
             raise HTTPException(status_code=400, detail=f"Недостаточно остатка для товара {prod['name']}")
 
-    # Списываем остатки (транзакции/саги опущены для простоты учебного проекта)
+    # Списываем остатки 
     for it in body.items:
         await products_col.update_one({"_id": ObjectId(it.product_id)}, {"$inc": {"stock": -it.quantity}})
 
@@ -355,7 +355,7 @@ async def report_sales_by_product():
 
 
 # ---------------------------------------------------------
-# DEV: сиды для быстрого старта (опционально, можно убрать в проде)
+# DEV: Тестовые сиды для быстрого старта 
 # ---------------------------------------------------------
 @app.post("/dev/seed", summary="Засеять БД тестовыми данными")
 async def dev_seed():
