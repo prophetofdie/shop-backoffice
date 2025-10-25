@@ -1,8 +1,15 @@
 # Makefile для удобного управления проектом
 
-# Запуск всего проекта
-up:
+# Links:
+links:
+	@echo "Swagger UI:  http://127.0.0.1:8000/docs"
+	@echo "Main page:   http://localhost:8080"
+
+# Build всего проекта
+build:
 	docker compose up -d --build
+
+up: build links
 
 # Остановка контейнеров
 down:
